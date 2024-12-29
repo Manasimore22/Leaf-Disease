@@ -95,4 +95,6 @@ def disease_prediction():
 
 # Main block to run the app
 if __name__ == '__main__':
-    app.run(debug=False)
+    # Use environment variable PORT for deployment on Render, default to 5000 if not set
+    port = int(os.environ.get('PORT', 5000))
+    app.run(debug=False, host='0.0.0.0', port=port)
