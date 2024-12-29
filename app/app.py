@@ -72,7 +72,7 @@ def disease_prediction():
             return redirect(request.url)
         file = request.files.get('file')
         if not file:
-            return render_template('disease.html', title='Harvestify - Disease Detection')
+            return render_template('disease.html', title='KrishiSutra - Leaf Disease Detection')
 
         try:
             # Read the image file
@@ -85,11 +85,11 @@ def disease_prediction():
             prediction_description = Markup(str(disease_dic.get(prediction, "No description available.")))
 
             # Render the result page
-            return render_template('disease-result.html', prediction=prediction_description, title='Harvestify - Disease Detection')
+            return render_template('disease-result.html', prediction=prediction_description, title='KrishiSutra - Leaf Disease Detection')
 
         except Exception as e:
             print(e)
-            return render_template('disease.html', title='Harvestify - Disease Detection')
+            return render_template('disease.html', title='KrishiSutra - Leaf Disease Detection')
     
     return render_template('disease.html', title='Harvestify - Disease Detection')
 
