@@ -8,6 +8,9 @@ import io
 import os
 from utils.model import ResNet9
 from utils.disease import disease_dic
+import sys
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
 
 # Print the current working directory for debugging
 print("Current Working Directory:", os.getcwd())
