@@ -94,4 +94,4 @@ def disease_prediction():
     return render_template('disease.html', title='Harvestify - Disease Detection')
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=False,host='0.0.0.0')
