@@ -1,5 +1,5 @@
-from flask import Flask, render_template, request, redirect, jsonify
-from celery import Celery
+# Importing essential libraries
+from flask import Flask, render_template, request, redirect
 from markupsafe import Markup
 import torch
 from torchvision import transforms
@@ -7,20 +7,17 @@ from PIL import Image
 import io
 import os
 import sys
+# Add the root project directory to the sys.path to resolve imports
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from utils.model import ResNet9
 from utils.disease import disease_dic
 
-# Add the root project directory to the sys.path to resolve imports
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+# Print the current working directory for debugging
+print("Current Working Directory:", os.getcwd())
 
 # Initialize Flask app
 app = Flask(__name__)
-
-# Celery configuration
-app.config['CELERY_BROKER_URL'] = 'redis://localhost:6379/0'  # Redis as message broker
-app.config['CELERY_RESULT_BACKEND'] = 'redis://localhost:6379/0'  # Where task results are stored
-celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
-celery.conf.update(app.config)
 
 # ------------------------- LOADING THE TRAINED PLANT DISEASE CLASSIFICATION MODEL -------------------------
 
@@ -67,23 +64,10 @@ def predict_image(img, model=disease_model):
     img_u = torch.unsqueeze(img_t, 0)
 
     # Make prediction
-    with torch.no_grad():  # Disable gradient calculations for inference
-        yb = model(img_u)
-        _, preds = torch.max(yb, dim=1)
+    yb = model(img_u)
+    _, preds = torch.max(yb, dim=1)
     prediction = disease_classes[preds[0].item()]
     return prediction
-
-# ------------------------- BACKGROUND TASK -------------------------
-
-@celery.task
-def predict_disease_task(img_data):
-    """Task for predicting disease in the background."""
-    try:
-        prediction = predict_image(img_data)
-        description = disease_dic.get(prediction, "No description available.")
-        return prediction, description
-    except Exception as e:
-        return str(e), None
 
 # ------------------------- ROUTES -------------------------
 
@@ -104,19 +88,16 @@ def disease_prediction():
             return render_template('disease.html', title='KrishiSutra - Leaf Disease Detection')
 
         try:
-            img_data = file.read()  # Read the uploaded image
+            img = file.read()  # Read the uploaded image
+            prediction = predict_image(img)  # Predict disease
 
-            # Start prediction in background using Celery
-            task = predict_disease_task.apply_async(args=[img_data])
-
-            # Wait for the task result asynchronously
-            result = task.get(timeout=60)  # Set a timeout for the task (e.g., 60 seconds)
-            prediction, prediction_description = result
+            # Get the disease description from the dictionary
+            prediction_description = Markup(disease_dic.get(prediction, "No description available."))
 
             # Render the result page
             return render_template(
                 'disease-result.html', 
-                prediction=Markup(prediction_description), 
+                prediction=prediction_description, 
                 disease_name=prediction, 
                 title='KrishiSutra - Leaf Disease Detection'
             )
@@ -131,3 +112,5 @@ def disease_prediction():
 
 if __name__ == "__main__":
     app.run(debug=False, host='0.0.0.0')
+
+
