@@ -6,10 +6,12 @@ from torchvision import transforms
 from PIL import Image
 import io
 import os
-from .utils.model import ResNet9
-from .utils.disease import disease_dic
 import sys
+# Add the root project directory to the sys.path to resolve imports
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+from utils.model import ResNet9
+from utils.disease import disease_dic
+
 
 
 # Print the current working directory for debugging
