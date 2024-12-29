@@ -91,7 +91,7 @@ def disease_prediction():
             print(e)
             return render_template('disease.html', title='KrishiSutra - Leaf Disease Detection')
     
-    return render_template('disease.html', title='Harvestify - Disease Detection')
+    return render_template('disease.html', title='KrishiSutra - Leaf Disease Detection')
 
 if __name__ == "__main__":
     app.run(debug=False,host='0.0.0.0')
