@@ -6,7 +6,7 @@ from torchvision import transforms
 from PIL import Image
 import io
 import os
-from app.utils.model import ResNet9
+from utils.model import ResNet9
 from utils.disease import disease_dic
 
 # Initialize Flask app
