@@ -5,7 +5,7 @@ import torch
 from torchvision import transforms
 from PIL import Image
 import io
-import pickle
+import os
 from utils.model import ResNet9
 from utils.disease import disease_dic
 
@@ -27,10 +27,18 @@ disease_classes = ['Apple___Apple_scab', 'Apple___Black_rot', 'Apple___Cedar_app
                    'Tomato___Tomato_Yellow_Leaf_Curl_Virus', 'Tomato___Tomato_mosaic_virus', 'Tomato___healthy']
 
 # Load the trained plant disease classification model
-disease_model_path = 'app\models\plant_disease_model.pth'
+# Use os.path.join to make path handling platform-independent
+disease_model_path = os.path.join(os.getcwd(), 'app', 'models', 'plant_disease_model.pth')
+
+# Initialize the model
 disease_model = ResNet9(3, len(disease_classes))
-disease_model.load_state_dict(torch.load(disease_model_path, map_location=torch.device('cpu')))
-disease_model.eval()
+
+# Check if the model file exists
+if os.path.exists(disease_model_path):
+    disease_model.load_state_dict(torch.load(disease_model_path, map_location=torch.device('cpu')))
+    disease_model.eval()
+else:
+    raise FileNotFoundError(f"Model file not found at: {disease_model_path}")
 
 # Define image transformation function
 def predict_image(img, model=disease_model):
